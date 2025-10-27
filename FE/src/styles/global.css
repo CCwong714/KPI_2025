@@ -1,0 +1,7 @@
+@import 'tailwindcss';
+
+.polyfill-h-100dvh {
+  height: calc(100vh);
+  height: calc((var(--1dvh, 1vh) * 100));
+  height: calc(100dvh);
+}
