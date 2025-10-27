@@ -81,6 +81,7 @@ const registerUser = async (req: Request<{}, {}, IUser>, res: Response) => {
     });
   }
 };
+
 const loginUser = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
@@ -92,8 +93,8 @@ const loginUser = async (req: Request, res: Response) => {
       });
       return;
     }
-
-    const user = await User.findOne({ username });
+    const usernameTrimmed = username.trim();
+    const user = await User.findOne({ username: usernameTrimmed });
     const isPasswordMatch =
       user && (await bcrypt.compare(password, user.password));
 
@@ -118,18 +119,17 @@ const loginUser = async (req: Request, res: Response) => {
         role: user.role,
       },
       secret,
-      { expiresIn: '30m' } // access token 有效期短
+      { expiresIn: '30m' }
     );
 
     const refreshToken = jwt.sign(
       { userId: user._id.toString() },
       refreshSecret,
-      { expiresIn: '7d' } // refresh token 有效期长
+      { expiresIn: '31min' }
     );
 
     addToken(accessToken);
 
-    // 你可以选择把 refresh token 存数据库（更安全）
     user.refreshToken = refreshToken;
     await user.save();
 
@@ -292,10 +292,72 @@ const logoutUser = async (req: Request, res: Response) => {
   }
 };
 
+const refreshAccessToken = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      res.status(400).json({
+        success: false,
+        message: 'Refresh token is required!',
+      });
+      return;
+    }
+
+    const refreshSecret = process.env.JWT_REFRESH_SECRET_KEY;
+    const accessSecret = process.env.JWT_SECRET_KEY;
+
+    if (!refreshSecret || !accessSecret) {
+      throw new Error('JWT secret keys are not defined');
+    }
+
+    const decoded = jwt.verify(refreshToken, refreshSecret) as {
+      userId: string;
+    };
+
+    const user = await User.findById(decoded.userId);
+
+    if (!user || user.refreshToken !== refreshToken) {
+      res.status(403).json({
+        success: false,
+        message: 'Invalid refresh token!',
+      });
+      return;
+    }
+
+    const newAccessToken = jwt.sign(
+      {
+        userId: user._id.toString(),
+        username: user.username,
+        role: user.role,
+      },
+      accessSecret,
+      { expiresIn: '30m' }
+    );
+
+    addToken(newAccessToken);
+
+    res.status(200).json({
+      success: true,
+      message: 'Access token refreshed successfully!',
+      data: {
+        accessToken: newAccessToken,
+      },
+    });
+  } catch (error) {
+    console.error('Error in refreshToken:', error);
+    res.status(403).json({
+      success: false,
+      message: 'Invalid or expired refresh token.',
+    });
+  }
+};
+
 export {
   registerUser,
   loginUser,
   sendPasswordToEmail,
   changePassword,
   logoutUser,
+  refreshAccessToken,
 };
