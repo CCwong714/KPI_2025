@@ -1,5 +1,5 @@
 import { getCurrentUserApi } from '@/api/user/get-current-user-api';
-import { logoutAPi } from '@/api/logoutApi';
+import { logoutAPi } from '@/api/auth/logoutApi';
 import { addPostApi } from '@/api/post/add-post-api';
 import { delPostApi } from '@/api/post/del-post-api';
 import { getAllPostApi } from '@/api/post/get-all-post';

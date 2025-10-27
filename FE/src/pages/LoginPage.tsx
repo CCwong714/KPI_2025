@@ -1,4 +1,4 @@
-import { loginApi } from '@/api/loginApi';
+import { loginApi } from '@/api/auth/loginApi';
 import LinkButton from '@/components/linkButton';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { yupResolver } from '@hookform/resolvers/yup';

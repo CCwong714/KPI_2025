@@ -1,3 +1,4 @@
+import { refreshTokenApi } from '@/api/auth/refreshTokenApi';
 import { getCurrentUserApi } from '@/api/user/get-current-user-api';
 import { uploadPhotoApi } from '@/api/user/upload-photo-api';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -21,6 +22,16 @@ const ProfilePage = () => {
     },
     onError: () => {
       console.log('❌ Upload failed');
+    },
+  });
+
+  const refreshToken = useMutation({
+    mutationFn: () => refreshTokenApi(),
+    onSuccess: () => {
+      console.log('succ');
+    },
+    onError: () => {
+      console.log('error');
     },
   });
 
@@ -91,6 +102,15 @@ const ProfilePage = () => {
           disabled={!selectedFile || uploadPhoto.isPending}
         >
           {uploadPhoto.isPending ? '上传中...' : '上传'}
+        </button>
+
+        <button
+          className='cursor-pointer'
+          onClick={() => {
+            refreshToken.mutate();
+          }}
+        >
+          Refresh Token
         </button>
       </div>
     </>

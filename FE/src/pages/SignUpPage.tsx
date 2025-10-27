@@ -1,4 +1,4 @@
-import { registerApi } from '@/api/registerApi';
+import { registerApi } from '@/api/auth/registerApi';
 import LinkButton from '@/components/linkButton';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from '@tanstack/react-query';
