@@ -92,7 +92,7 @@ const ChangePasswordPage = () => {
         <LinkButton
           text='Forget Password (send to email)'
           onClick={() => {
-            forgetPasswordMutate({ email: 'ccUser01@gmail.com' });
+            forgetPasswordMutate({ email: 'ccAdmin01@gmail.com"' });
           }}
         />
 
